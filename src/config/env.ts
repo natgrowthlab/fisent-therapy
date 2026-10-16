@@ -39,7 +39,7 @@ function getBoolEnvVar(key: keyof typeof publicEnvironment, defaultValue: boolea
 // --- Configuracion exportada ---
 export const env = {
   // API
-  API_URL: getEnvVar('NEXT_PUBLIC_API_URL', 'https://back-fisent.onrender.com/api'),
+  API_URL: getEnvVar('NEXT_PUBLIC_API_URL', '/api'),
 
   // App
   APP_NAME: getEnvVar('NEXT_PUBLIC_APP_NAME', 'FisenT'),
