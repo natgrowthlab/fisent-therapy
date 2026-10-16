@@ -1,5 +1,5 @@
-import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
+import { database, ensureDatabaseSchema } from '../../../server/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +9,8 @@ export async function GET() {
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    await ensureDatabaseSchema();
+    const sql = database();
     const tariffs = await sql`
       SELECT id, category, name, description, price, featured
       FROM tariffs

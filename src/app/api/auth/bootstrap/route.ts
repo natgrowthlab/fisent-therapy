@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { database } from '../../../../server/db';
+import { database, ensureDatabaseSchema } from '../../../../server/db';
 import { unavailable } from '../../../../server/http';
 
 // One-time setup endpoint. It refuses to run when a user already exists.
@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
     if (typeof username !== 'string' || username.length < 3 || typeof password !== 'string' || password.length < 12) {
       return NextResponse.json({ message: 'Usuario mínimo 3 caracteres y contraseña mínimo 12 caracteres.' }, { status: 400 });
     }
+    await ensureDatabaseSchema();
     const sql = database();
     const [existing] = await sql`SELECT id FROM users LIMIT 1`;
     if (existing) return NextResponse.json({ message: 'La plataforma ya tiene un usuario. Use administración de usuarios.' }, { status: 409 });
