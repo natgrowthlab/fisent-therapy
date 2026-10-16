@@ -1,3 +1,4 @@
+'use client';
 // ============================================================
 // FISENT - APP (Router + Auth Provider + Layout)
 // ============================================================
@@ -7,19 +8,19 @@ import { AuthProvider } from './context/AuthContext';
 import { AppLayout, ProtectedRoute, PublicRoute } from './components/layout/Layout';
 
 // Pages
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import PatientsPage from './pages/patients/PatientsPage';
-import PackagesPage from './pages/PackagesPage';
-import AppointmentsPage from './pages/appointments/AppointmentsPage';
-import CalendarPage from './pages/CalendarPage';
-import HistoryPage from './pages/history/HistoryPage';
-import PaymentsPage from './pages/PaymentsPage';
-import ProfessionalsPage from './pages/ProfessionalsPage';
-import Cie10Page from './pages/Cie10Page';
-import ReportsPage from './pages/ReportsPage';
-import CheckInPage from './pages/CheckInPage';
-import TariffsPage from './pages/TariffsPage';
+import LoginPage from './screens/LoginPage';
+import DashboardPage from './screens/DashboardPage';
+import PatientsPage from './screens/patients/PatientsPage';
+import PackagesPage from './screens/PackagesPage';
+import AppointmentsPage from './screens/appointments/AppointmentsPage';
+import CalendarPage from './screens/CalendarPage';
+import HistoryPage from './screens/history/HistoryPage';
+import PaymentsPage from './screens/PaymentsPage';
+import ProfessionalsPage from './screens/ProfessionalsPage';
+import Cie10Page from './screens/Cie10Page';
+import ReportsPage from './screens/ReportsPage';
+import CheckInPage from './screens/CheckInPage';
+import TariffsPage from './screens/TariffsPage';
 
 export default function App() {
   return (

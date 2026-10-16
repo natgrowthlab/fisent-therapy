@@ -47,4 +47,4 @@ La respuesta debe ser `200`, con `Content-Type: application/vnd.apple.pkpass` y 
 - Certificado de Pass Type y su clave privada.
 - Certificado WWDR de Apple.
 
-Los certificados y claves no se deben incluir en Git, variables `VITE_*`, ni en el cliente. El pase debe mostrar el QR opaco y usar `webServiceURL`/`authenticationToken` si se quiere actualizar o revocar desde Wallet.
+Los certificados y claves no se deben incluir en Git, variables `NEXT_PUBLIC_*`, ni en el cliente. El pase debe mostrar el QR opaco y usar `webServiceURL`/`authenticationToken` si se quiere actualizar o revocar desde Wallet.

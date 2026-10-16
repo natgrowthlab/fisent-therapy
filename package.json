@@ -4,20 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "next dev",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "npm run typecheck && vite build",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
     "axios": "^1.20.0",
     "clsx": "2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.14.0",
+    "next": "^16.4.2",
     "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -27,16 +27,15 @@
     "zod": "^4.4.2"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "4.1.17",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "gh-pages": "^6.3.0",
-    "tailwindcss": "4.1.17",
+    "tailwindcss": "^4.3.3",
     "typescript": "5.9.3",
-    "vite": "7.3.2",
-    "vite-plugin-singlefile": "2.3.0",
     "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "source-map-js": "1.2.2"
   }
 }

@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Activity, BadgeDollarSign, ClipboardList, Dumbbell, Filter, HeartPulse, Sparkles } from 'lucide-react';
 import { Card, PageHeader, SearchInput } from '../components/ui/Components';
-import { formatCop, TARIFF_CATEGORIES, TARIFFS, TariffCategory } from '../data/tariffs';
+import { formatCop, TARIFF_CATEGORIES, TARIFFS, Tariff, TariffCategory } from '../data/tariffs';
 
 const categoryIcons: Record<TariffCategory, typeof Activity> = {
   Valoración: ClipboardList,
@@ -16,12 +16,24 @@ const categoryIcons: Record<TariffCategory, typeof Activity> = {
 export default function TariffsPage() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<TariffCategory | 'Todas'>('Todas');
+  const [tariffs, setTariffs] = useState<Tariff[]>(TARIFFS);
 
-  const visibleTariffs = useMemo(() => TARIFFS.filter((tariff) => {
+  useEffect(() => {
+    fetch('/api/tariffs')
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error('Tarifas no disponibles')))
+      .then((payload: { data?: Tariff[] }) => {
+        if (payload.data?.length) setTariffs(payload.data);
+      })
+      .catch(() => {
+        // The visual catalog remains usable before DATABASE_URL is provisioned.
+      });
+  }, []);
+
+  const visibleTariffs = useMemo(() => tariffs.filter((tariff) => {
     const matchesCategory = category === 'Todas' || tariff.category === category;
     const text = `${tariff.name} ${tariff.description ?? ''}`.toLowerCase();
     return matchesCategory && text.includes(query.trim().toLowerCase());
-  }), [category, query]);
+  }), [category, query, tariffs]);
 
   const groupedTariffs = TARIFF_CATEGORIES.map((currentCategory) => ({
     category: currentCategory,

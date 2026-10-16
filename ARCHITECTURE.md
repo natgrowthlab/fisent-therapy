@@ -46,7 +46,7 @@ src/
 │   └── Cie10Page.tsx
 ├── App.tsx              # Router configuration
 ├── main.tsx             # Entry point
-└── vite-env.d.ts        # Vite types
+└── app/                 # Next.js App Router + API routes
 ```
 
 ### Justificación: Feature-Based + Clean-ish Architecture

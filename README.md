@@ -194,4 +194,4 @@ src/
 | ≥1024px | Colapsable fijo | No | 3-4 cols |
 
 ## Tecnologías
-React 19 + TypeScript + Vite 7 + Tailwind CSS 4 + React Router + Axios + Zod + date-fns + react-hot-toast + lucide-react
+Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + React Router + Axios + Neon Postgres + Zod + date-fns + react-hot-toast + lucide-react
