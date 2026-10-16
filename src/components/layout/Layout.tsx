@@ -5,7 +5,7 @@ import { useState, ReactNode } from 'react';
 import { Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import {
   Users, Package, Calendar, FileText, BookOpen, CreditCard, Stethoscope,
-  LogOut, Menu, ChevronLeft, Home, BarChart3, CalendarDays, QrCode, X,
+  LogOut, Menu, ChevronLeft, Home, BarChart3, CalendarDays, QrCode, BadgeDollarSign, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { isAuthenticated as checkAuth } from '../../data-access/api';
@@ -31,6 +31,7 @@ const navItems = [
   { path: '/packages', label: 'Paquetes', icon: Package, shortLabel: 'Paquetes' },
   { path: '/appointments', label: 'Citas', icon: Calendar, shortLabel: 'Citas' },
   { path: '/check-in', label: 'Ingresos', icon: QrCode, shortLabel: 'Ingreso' },
+  { path: '/tariffs', label: 'Tarifas', icon: BadgeDollarSign, shortLabel: 'Tarifas' },
   { path: '/history', label: 'Historia Clinica', icon: FileText, shortLabel: 'Historia', feature: 'history' as const },
   { path: '/payments', label: 'Pagos', icon: CreditCard, shortLabel: 'Pagos', feature: 'payments' as const },
   { path: '/reports', label: 'Reportes', icon: BarChart3, shortLabel: 'Reportes' },

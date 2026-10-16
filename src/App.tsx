@@ -19,6 +19,7 @@ import ProfessionalsPage from './pages/ProfessionalsPage';
 import Cie10Page from './pages/Cie10Page';
 import ReportsPage from './pages/ReportsPage';
 import CheckInPage from './pages/CheckInPage';
+import TariffsPage from './pages/TariffsPage';
 
 export default function App() {
   return (
@@ -152,6 +153,16 @@ export default function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <CheckInPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tariffs"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <TariffsPage />
                 </AppLayout>
               </ProtectedRoute>
             }
