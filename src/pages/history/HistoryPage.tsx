@@ -3,7 +3,7 @@
 // ============================================================
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { historyService, appointmentService, cie10Service, patientService } from '../../data-access/services';
+import { historyService, appointmentService, cie10Service } from '../../data-access/services';
 import { ClinicalHistory, Appointment, Cie10, Patient, HistoryQuoteContext } from '../../domain/models';
 import { Card, Button, TableSkeleton, EmptyState, PageHeader } from '../../components/ui/Components';
 import { PatientSearchField } from '../../components/PatientSearchField';

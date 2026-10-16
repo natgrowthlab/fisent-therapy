@@ -66,24 +66,6 @@ const emptyForm: AppointmentFormData = {
   observaciones: '',
 };
 
-const toMinutes = (value?: string) => {
-  const [hours = '0', minutes = '0'] = (value || '').split(':');
-  return Number(hours) * 60 + Number(minutes);
-};
-
-const hasScheduleCollision = (
-  appointments: Appointment[],
-  form: AppointmentFormData,
-  editingId?: number
-) => appointments.some((appointment) =>
-  appointment.id_profesional === form.id_profesional &&
-  appointment.fecha.split('T')[0] === form.fecha &&
-  appointment.id !== editingId &&
-  appointment.estado !== 'CANCELADA' &&
-  toMinutes(appointment.horario_inicio) < toMinutes(form.horario_fin) &&
-  toMinutes(appointment.horario_fin) > toMinutes(form.horario_inicio)
-);
-
 const getAppointmentPackageId = (appointment: Appointment) =>
   Number(appointment.id_paquete ?? appointment.id_paquetes ?? appointment.paquete?.id ?? appointment.package?.id ?? 0) || null;
 

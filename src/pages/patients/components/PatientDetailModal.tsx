@@ -9,6 +9,7 @@ import {
 } from '../../../components/ui/Components';
 
 import { Patient } from '../../../domain/models';
+import { PatientAccessCard } from '../../../components/PatientAccessCard';
 
 interface Props {
   patient: Patient | null;
@@ -53,6 +54,7 @@ export function PatientDetailModal({
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Antecedentes</p>
               <p className="text-sm text-gray-700 leading-relaxed">{patient.antecedentes || 'Sin antecedentes'}</p>
             </div>
+            <PatientAccessCard patient={patient} />
           </div>
       )}
     </Modal>

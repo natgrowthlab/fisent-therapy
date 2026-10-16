@@ -16,6 +16,7 @@ import {
   PaginationParams, PaginatedResult, ReportQueryParams, DashboardReport, RevenueByMonth,
   AppointmentStatusDistribution, TopProfessionalReport, PackageTypeReport, NearCompletionPackageReport,
   RecentPaymentReport, SessionsSummary, HistoryQuoteContext,
+  PatientAccessCredential, PatientAccessValidation,
 } from '../domain/models';
 
 // --- Auth Service ---
@@ -62,6 +63,28 @@ export const patientService = {
   delete: async (id: number) => {
     const res = await api.delete<BackendResponse<null>>(`/patient/delete-patient/${id}`);
     return res.data;
+  },
+};
+
+/**
+ * The backend owns signing, expiry, revocation, membership checks and audit logs.
+ * This client deliberately never constructs a QR payload from a patient id.
+ */
+export const patientAccessService = {
+  issueCredential: async (patientId: number): Promise<PatientAccessCredential> => {
+    const res = await api.post<BackendResponse<PatientAccessCredential>>(`/patient/${patientId}/access-credential`);
+    return res.data.response;
+  },
+  downloadApplePass: async (patientId: number): Promise<Blob> => {
+    const res = await api.post(`/patient/${patientId}/apple-pass`, undefined, { responseType: 'blob' });
+    return res.data;
+  },
+  validateAndCheckIn: async (qrPayload: string): Promise<PatientAccessValidation> => {
+    const res = await api.post<BackendResponse<PatientAccessValidation>>('/patient/access-credentials/validate', {
+      qr_payload: qrPayload,
+      purpose: 'CHECK_IN',
+    });
+    return res.data.response;
   },
 };
 

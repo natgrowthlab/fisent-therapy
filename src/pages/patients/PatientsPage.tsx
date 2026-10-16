@@ -335,13 +335,14 @@ export default function PatientsPage() {
           'Paciente actualizado'
         );
       } else {
-        await patientService.create(
+        const createdPatient = await patientService.create(
           result.data as PatientCreateDTO
         );
 
         toast.success(
           'Paciente creado exitosamente'
         );
+        setViewingPatient(createdPatient);
       }
 
       setModalOpen(false);
@@ -492,4 +493,3 @@ export default function PatientsPage() {
     </div>
   );
 }
-

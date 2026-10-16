@@ -18,6 +18,7 @@ import PaymentsPage from './pages/PaymentsPage';
 import ProfessionalsPage from './pages/ProfessionalsPage';
 import Cie10Page from './pages/Cie10Page';
 import ReportsPage from './pages/ReportsPage';
+import CheckInPage from './pages/CheckInPage';
 
 export default function App() {
   return (
@@ -141,6 +142,16 @@ export default function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <ReportsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/check-in"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <CheckInPage />
                 </AppLayout>
               </ProtectedRoute>
             }

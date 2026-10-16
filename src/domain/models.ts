@@ -522,6 +522,22 @@ export interface FormFieldError {
   message: string;
 }
 
+// --- Credenciales de acceso del paciente ---
+// El QR debe ser un token opaco firmado por el backend: nunca PII ni IDs secuenciales.
+export interface PatientAccessCredential {
+  qr_payload: string;
+  expires_at?: string;
+  membership_status?: 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
+}
+
+export interface PatientAccessValidation {
+  valid: boolean;
+  patient?: Pick<Patient, 'id' | 'nombre' | 'apellido' | 'num_doc'>;
+  membership_status?: 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
+  check_in_at?: string;
+  message?: string;
+}
+
 
 export const GENERO_OPTIONS = [
   { value: 'M', label: 'Masculino' },

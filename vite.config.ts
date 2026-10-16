@@ -11,7 +11,9 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), viteSingleFile()],
-  base: '/',
+  // Vercel serves the app from the domain root. Use VITE_BASE_PATH only for previews
+  // deployed below a subpath.
+  base: process.env.VITE_BASE_PATH || '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
