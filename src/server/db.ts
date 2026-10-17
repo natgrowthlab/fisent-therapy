@@ -26,6 +26,19 @@ export function ensureDatabaseSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
+    await sql`CREATE TABLE IF NOT EXISTS professionals (
+      id BIGSERIAL PRIMARY KEY,
+      user_id BIGINT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      nombre TEXT NOT NULL,
+      apellido TEXT NOT NULL,
+      especialidad TEXT NOT NULL,
+      telefono TEXT NOT NULL,
+      email TEXT NOT NULL,
+      estado BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS professionals_search_idx ON professionals (nombre, apellido, especialidad)`;
     await sql`CREATE TABLE IF NOT EXISTS patients (
       id BIGSERIAL PRIMARY KEY,
       tipo_doc TEXT NOT NULL,

@@ -169,6 +169,13 @@ export const professionalService = {
     const result = await professionalService.getPaginated({ search, page, limit });
     return result.data;
   },
+  create: async (data: {
+    username: string; password: string; nombre: string; apellido: string;
+    especialidad: string; telefono: string; email: string; rol: 'TERAPEUTA' | 'RECEPCION';
+  }) => {
+    const res = await api.post<BackendResponse<Professional>>('/professionals/create', data);
+    return res.data.response;
+  },
 };
 
 // --- Appointment Service ---

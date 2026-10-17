@@ -4,16 +4,30 @@
 import { useState, useEffect, useCallback } from 'react';
 import { professionalService } from '../data-access/services';
 import { Professional } from '../domain/models';
-import { Card, Badge, TableSkeleton, EmptyState, PageHeader, SearchInput, Avatar } from '../components/ui/Components';
-import { Stethoscope, Mail, Phone } from 'lucide-react';
+import { Card, Badge, TableSkeleton, EmptyState, PageHeader, SearchInput, Avatar, Button, Input, Modal, Select } from '../components/ui/Components';
+import { Stethoscope, Mail, Phone, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const avatarColors = ['teal', 'blue', 'purple', 'amber', 'emerald', 'rose'] as const;
+
+const initialForm: {
+  nombre: string; apellido: string; especialidad: string; telefono: string; email: string;
+  username: string; password: string; rol: 'TERAPEUTA' | 'RECEPCION';
+} = {
+  nombre: '', apellido: '', especialidad: 'Fisioterapia', telefono: '', email: '',
+  username: '', password: '', rol: 'TERAPEUTA',
+};
 
 export default function ProfessionalsPage() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(initialForm);
+  const { state } = useAuth();
+  const isAdmin = state.user?.rol === 'ADMIN';
 
   const loadProfessionals = useCallback(async () => {
     setLoading(true);
@@ -27,6 +41,22 @@ export default function ProfessionalsPage() {
 
   useEffect(() => { loadProfessionals(); }, [loadProfessionals]);
 
+  const createProfessional = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      const created = await professionalService.create(form);
+      setProfessionals((current) => [...current, created]);
+      setForm(initialForm);
+      setModalOpen(false);
+      toast.success(`Cuenta de ${created.nombre} creada correctamente`);
+    } catch (err: any) {
+      toast.error(err?.message || 'No se pudo crear la cuenta');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const filtered = professionals.filter((p) =>
     !search || p.nombre.toLowerCase().includes(search.toLowerCase()) ||
     p.apellido.toLowerCase().includes(search.toLowerCase()) ||
@@ -39,6 +69,9 @@ export default function ProfessionalsPage() {
         icon={<Stethoscope className="w-6 h-6" />}
         title="Profesionales"
         subtitle={`${professionals.length} profesionales registrados`}
+        action={isAdmin ? (
+          <Button onClick={() => setModalOpen(true)}><UserPlus className="w-4 h-4 mr-2" />Crear cuenta</Button>
+        ) : undefined}
       />
 
       <Card>
@@ -91,6 +124,26 @@ export default function ProfessionalsPage() {
           ))}
         </div>
       )}
+
+      <Modal isOpen={modalOpen} onClose={() => !saving && setModalOpen(false)} title="Crear cuenta profesional" size="lg">
+        <form onSubmit={createProfessional} className="space-y-5">
+          <p className="text-sm text-gray-600 leading-relaxed">Crea el perfil profesional y sus credenciales de acceso. La contraseña se guarda cifrada y solo se mostrará aquí al escribirla.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input label="Nombres" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} required autoComplete="given-name" />
+            <Input label="Apellidos" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} required autoComplete="family-name" />
+            <Input label="Especialidad" value={form.especialidad} onChange={(e) => setForm({ ...form, especialidad: e.target.value })} required />
+            <Input label="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} required inputMode="tel" autoComplete="tel" />
+            <div className="sm:col-span-2"><Input label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required autoComplete="email" /></div>
+            <Input label="Usuario" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} required minLength={3} maxLength={50} autoComplete="username" hint="Usa letras, números, punto, guion o guion bajo." />
+            <Input label="Contraseña inicial" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={12} autoComplete="new-password" hint="Mínimo 12 caracteres." />
+            <Select label="Rol de acceso" value={form.rol} onChange={(e) => setForm({ ...form, rol: e.target.value as 'TERAPEUTA' | 'RECEPCION' })} options={[{ value: 'TERAPEUTA', label: 'Terapeuta' }, { value: 'RECEPCION', label: 'Recepción' }]} />
+          </div>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancelar</Button>
+            <Button type="submit" isLoading={saving}><UserPlus className="w-4 h-4 mr-2" />Crear cuenta</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
