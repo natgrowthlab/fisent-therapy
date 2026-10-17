@@ -58,6 +58,24 @@ export function ensureDatabaseSchema() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
     await sql`CREATE INDEX IF NOT EXISTS patients_search_idx ON patients (nombre, apellido, num_doc)`;
+    await sql`CREATE TABLE IF NOT EXISTS patient_access_credentials (
+      id TEXT PRIMARY KEY,
+      patient_id BIGINT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      token_hash TEXT UNIQUE NOT NULL,
+      membership_status TEXT NOT NULL DEFAULT 'ACTIVA' CHECK (membership_status IN ('ACTIVA', 'INACTIVA', 'VENCIDA')),
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      last_used_at TIMESTAMPTZ
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS patient_access_credentials_patient_idx ON patient_access_credentials (patient_id, active, expires_at)`;
+    await sql`CREATE TABLE IF NOT EXISTS patient_check_ins (
+      id BIGSERIAL PRIMARY KEY,
+      credential_id TEXT NOT NULL REFERENCES patient_access_credentials(id),
+      patient_id BIGINT NOT NULL REFERENCES patients(id),
+      checked_in_by BIGINT REFERENCES users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
     await sql`CREATE TABLE IF NOT EXISTS tariffs (
       id TEXT PRIMARY KEY,
       category TEXT NOT NULL,

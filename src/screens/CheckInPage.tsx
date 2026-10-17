@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Camera, QrCode, ShieldCheck } from 'lucide-react';
+import { BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import { patientAccessService } from '../data-access/services';
 import { PatientAccessValidation } from '../domain/models';
 import { Alert, Button, Card, PageHeader, Textarea } from '../components/ui/Components';
@@ -12,18 +13,17 @@ export default function CheckInPage() {
   const [cameraActive, setCameraActive] = useState(false);
   const [result, setResult] = useState<PatientAccessValidation | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerControlsRef = useRef<IScannerControls | null>(null);
+  const scanLockedRef = useRef(false);
 
   useEffect(() => () => {
-    const stream = videoRef.current?.srcObject;
-    if (stream instanceof MediaStream) stream.getTracks().forEach((track) => track.stop());
+    scannerControlsRef.current?.stop();
   }, []);
 
-  const validate = async (event?: FormEvent) => {
-    event?.preventDefault();
-    if (!payload.trim()) return;
+  const validatePayload = async (qrPayload: string) => {
     setLoading(true);
     try {
-      const validation = await patientAccessService.validateAndCheckIn(payload.trim());
+      const validation = await patientAccessService.validateAndCheckIn(qrPayload);
       setResult(validation);
       if (validation.valid) toast.success('Ingreso registrado');
       else toast.error(validation.message || 'Credencial no válida');
@@ -36,40 +36,50 @@ export default function CheckInPage() {
     }
   };
 
+  const validate = async (event?: FormEvent) => {
+    event?.preventDefault();
+    if (!payload.trim()) return;
+    await validatePayload(payload.trim());
+  };
+
+  const stopCamera = () => {
+    scannerControlsRef.current?.stop();
+    scannerControlsRef.current = null;
+    scanLockedRef.current = false;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraActive(false);
+  };
+
   const startCamera = async () => {
-    if (!('mediaDevices' in navigator) || !navigator.mediaDevices.getUserMedia) {
-      setCameraMessage('Este navegador no permite usar la cámara. Pegue el contenido del QR manualmente.');
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setCameraMessage('La cámara requiere HTTPS y permiso del navegador. Abra la plataforma desde su dominio seguro.');
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCameraActive(true);
-      const Detector = (window as typeof window & {
-        BarcodeDetector?: new (options: { formats: string[] }) => { detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue?: string }>> };
-      }).BarcodeDetector;
-      if (!Detector || !videoRef.current) {
-        setCameraMessage('Cámara iniciada. Este navegador no expone detector QR; pegue el contenido del QR manualmente.');
-        return;
-      }
-      const detector = new Detector({ formats: ['qr_code'] });
-      const scanFrame = async () => {
-        if (!videoRef.current?.srcObject) return;
-        const [code] = await detector.detect(videoRef.current);
-        if (code?.rawValue) {
-          setPayload(code.rawValue);
+      stopCamera();
+      scanLockedRef.current = false;
+      if (!videoRef.current) return;
+      const reader = new BrowserQRCodeReader();
+      const controls = await reader.decodeFromConstraints(
+        { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+        videoRef.current,
+        (scanResult) => {
+          const rawValue = scanResult?.getText();
+          if (!rawValue || scanLockedRef.current) return;
+          scanLockedRef.current = true;
+          setPayload(rawValue);
           setCameraMessage('QR leído. Validando credencial…');
-          return;
-        }
-        window.setTimeout(scanFrame, 250);
-      };
-      void scanFrame();
-      setCameraMessage('Cámara iniciada. Enfoque el código QR para leerlo.');
+          scannerControlsRef.current?.stop();
+          scannerControlsRef.current = null;
+          setCameraActive(false);
+          void validatePayload(rawValue);
+        },
+      );
+      scannerControlsRef.current = controls;
+      setCameraActive(true);
+      setCameraMessage('Cámara iniciada. Enfoque el QR de Apple Wallet o el QR genérico.');
     } catch {
-      setCameraMessage('No fue posible abrir la cámara. Revise los permisos del navegador.');
+      setCameraMessage('No fue posible abrir la cámara. En Safari: toque “Permitir” y use la cámara trasera.');
     }
   };
 
@@ -82,10 +92,11 @@ export default function CheckInPage() {
           <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={loading}><ShieldCheck className="mr-2 h-4 w-4" />Validar e ingresar</Button>
             <Button type="button" variant="secondary" onClick={startCamera}><Camera className="mr-2 h-4 w-4" />Abrir cámara</Button>
+            {cameraActive && <Button type="button" variant="ghost" onClick={stopCamera}>Detener cámara</Button>}
           </div>
         </form>
         {cameraMessage && <Alert type="info" message={cameraMessage} onClose={() => setCameraMessage(null)} />}
-        <video ref={videoRef} className={`mt-4 max-h-64 w-full rounded-xl bg-black ${cameraActive ? '' : 'hidden'}`} muted playsInline />
+        <video ref={videoRef} className={`mt-4 max-h-72 w-full rounded-xl bg-black object-cover ${cameraActive ? '' : 'hidden'}`} muted playsInline />
       </Card>
       {result && <Alert type={result.valid ? 'success' : 'error'} title={result.valid ? 'Acceso validado' : 'Acceso rechazado'} message={result.valid && result.patient ? `${result.patient.nombre} ${result.patient.apellido} · Membresía ${result.membership_status ?? 'por verificar'}` : result.message || 'La credencial no es válida, expiró o fue revocada.'} />}
     </div>
