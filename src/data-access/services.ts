@@ -71,8 +71,9 @@ export const patientService = {
  * This client deliberately never constructs a QR payload from a patient id.
  */
 export const patientAccessService = {
-  issueCredential: async (patientId: number): Promise<PatientAccessCredential> => {
-    const res = await api.post<BackendResponse<PatientAccessCredential>>(`/patient/${patientId}/access-credential`);
+  issueCredential: async (patientId: number, renew = false): Promise<PatientAccessCredential> => {
+    const suffix = renew ? '?renew=1' : '';
+    const res = await api.post<BackendResponse<PatientAccessCredential>>(`/patient/${patientId}/access-credential${suffix}`);
     return res.data.response;
   },
   downloadApplePass: async (patientId: number): Promise<Blob> => {

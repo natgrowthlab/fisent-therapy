@@ -14,7 +14,7 @@ export function PatientAccessCard({ patient }: { patient: Patient }) {
   const issueCredential = async () => {
     setLoading(true);
     try {
-      setCredential(await patientAccessService.issueCredential(patient.id));
+      setCredential(await patientAccessService.issueCredential(patient.id, Boolean(credential)));
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'No se pudo generar la credencial';
       toast.error(message);
