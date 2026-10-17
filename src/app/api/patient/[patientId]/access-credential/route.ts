@@ -13,6 +13,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
     return response(await createCredential(patientId), 'Credencial QR generada', 201);
   } catch (error) {
     if (error instanceof Error && /Token/.test(error.message)) return unauthorized();
+    if (error instanceof Error && /Paciente no encontrado/.test(error.message)) return response(null, error.message, 404);
     return unavailable(error instanceof Error ? error.message : undefined);
   }
 }
