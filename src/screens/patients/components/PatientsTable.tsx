@@ -61,8 +61,12 @@ function PatientsTableComponent({
               Contacto
             </th>
 
-            <th className="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
-              Estado
+            <th className="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">
+              Ingresos este mes
+            </th>
+
+            <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden xl:table-cell">
+              Último ingreso
             </th>
 
             <th className="text-right px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">
@@ -121,18 +125,12 @@ function PatientsTableComponent({
                 </p>
               </td>
 
-              <td className="px-5 py-3.5 text-center">
-                <Badge
-                  variant={
-                    p.estado
-                      ? 'success'
-                      : 'danger'
-                  }
-                >
-                  {p.estado
-                    ? 'Activo'
-                    : 'Inactivo'}
-                </Badge>
+              <td className="px-5 py-3.5 text-center hidden md:table-cell">
+                <Badge variant={(p.ingresos_este_mes ?? 0) > 0 ? 'success' : 'neutral'}>{p.ingresos_este_mes ?? 0}</Badge>
+              </td>
+
+              <td className="px-5 py-3.5 hidden xl:table-cell">
+                {p.ultimo_ingreso ? <><p className="font-medium text-gray-700">{new Date(p.ultimo_ingreso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}</p><p className="text-xs text-gray-400">{new Date(p.ultimo_ingreso).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</p></> : <span className="text-sm text-gray-400">Sin ingresos</span>}
               </td>
 
               <td className="px-5 py-3.5 text-right">
@@ -140,6 +138,7 @@ function PatientsTableComponent({
                   <button
                     onClick={() => onView(p)}
                     className="p-2 rounded-xl hover:bg-sky-50 text-sky-600 transition-colors"
+                    aria-label={`Ver ${p.nombre} ${p.apellido}`}
                   >
                     <Eye className="w-4 h-4" />
                   </button>
@@ -147,6 +146,7 @@ function PatientsTableComponent({
                   <button
                     onClick={() => onEdit(p)}
                     className="p-2 rounded-xl hover:bg-amber-50 text-amber-600 transition-colors"
+                    aria-label={`Editar ${p.nombre} ${p.apellido}`}
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -156,6 +156,7 @@ function PatientsTableComponent({
                       onDelete(p.id)
                     }
                     className="p-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors"
+                    aria-label={`Eliminar ${p.nombre} ${p.apellido}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -172,4 +173,3 @@ function PatientsTableComponent({
 export const PatientsTable = memo(
   PatientsTableComponent
 );
-

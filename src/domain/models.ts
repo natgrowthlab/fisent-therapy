@@ -102,6 +102,8 @@ export interface Patient {
   created_at: string;
   updated_at: string;
   membership?: Membership | null;
+  ingresos_este_mes?: number;
+  ultimo_ingreso?: string | null;
 }
 
 export type MembershipStatus = 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
