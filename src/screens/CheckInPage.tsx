@@ -98,7 +98,7 @@ export default function CheckInPage() {
         {cameraMessage && <Alert type="info" message={cameraMessage} onClose={() => setCameraMessage(null)} />}
         <video ref={videoRef} className={`mt-4 max-h-72 w-full rounded-xl bg-black object-cover ${cameraActive ? '' : 'hidden'}`} muted playsInline />
       </Card>
-      {result && <Alert type={result.valid ? 'success' : 'error'} title={result.valid ? 'Acceso validado' : 'Acceso rechazado'} message={result.valid && result.patient ? `${result.patient.nombre} ${result.patient.apellido} · Membresía ${result.membership_status ?? 'por verificar'}` : result.message || 'La credencial no es válida, expiró o fue revocada.'} />}
+      {result && <Alert type={result.valid ? 'success' : 'error'} title={result.valid ? 'Acceso validado' : 'Acceso rechazado'} message={result.valid && result.patient ? `${result.patient.nombre} ${result.patient.apellido} · ${result.membership?.plan_name ?? 'Membresía'} ${result.membership_status ?? 'por verificar'} · Ingreso: ${result.check_in_at ? new Date(result.check_in_at).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'medium' }) : 'registrado por servidor'}` : result.message || 'La credencial no es válida, expiró o fue revocada.'} />}
     </div>
   );
 }

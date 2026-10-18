@@ -356,6 +356,20 @@ export function PatientFormModal({
                         </div>
                     </section>
 
+                    {!editingPatient && (
+                    <section className="rounded-2xl border border-teal-100 bg-teal-50/40 p-5">
+                        <div className="mb-5">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-teal-700">Membresía de ingreso</p>
+                            <p className="mt-1 text-sm text-teal-900/70">Opcional. La vigencia controla el acceso por QR y el pase de Apple Wallet.</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <Select label="Plan" value={form.membership?.plan_code || ''} onChange={(e) => onFieldChange('membership', e.target.value ? { plan_code: e.target.value as 'AMATEUR' | 'PREPARACION' | 'PROFESIONAL', valid_from: form.membership?.valid_from || new Date().toISOString().slice(0, 10), valid_until: form.membership?.valid_until || '', notes: form.membership?.notes || '' } : undefined)} options={[{ value: 'AMATEUR', label: 'Amateur · $150.000 · 3/semana' }, { value: 'PREPARACION', label: 'Preparación · $250.000 · 4/semana' }, { value: 'PROFESIONAL', label: 'Profesional · $500.000 · personalizado' }]} />
+                            {form.membership && <Input label="Inicia" type="date" value={form.membership.valid_from} onChange={(e) => onFieldChange('membership', { ...form.membership!, valid_from: e.target.value })} />}
+                            {form.membership && <Input label="Vence" type="date" value={form.membership.valid_until} onChange={(e) => onFieldChange('membership', { ...form.membership!, valid_until: e.target.value })} />}
+                        </div>
+                    </section>
+                    )}
+
                     {/* ====================================================== */}
                     {/* CONTACTO */}
                     {/* ====================================================== */}
@@ -608,4 +622,3 @@ export function PatientFormModal({
         </Modal>
     );
 }
-

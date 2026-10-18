@@ -17,6 +17,7 @@ import {
   AppointmentStatusDistribution, TopProfessionalReport, PackageTypeReport, NearCompletionPackageReport,
   RecentPaymentReport, SessionsSummary, HistoryQuoteContext,
   PatientAccessCredential, PatientAccessValidation,
+  Membership, MembershipPlan, AccountingPayment,
 } from '../domain/models';
 
 // --- Auth Service ---
@@ -87,6 +88,19 @@ export const patientAccessService = {
     });
     return res.data.response;
   },
+};
+
+export const membershipService = {
+  plans: async (): Promise<MembershipPlan[]> => (await api.get<BackendResponse<MembershipPlan[]>>('/memberships/plans')).data.response,
+  updatePlan: async (data: MembershipPlan) => (await api.patch<BackendResponse<MembershipPlan>>('/memberships/plans', data)).data.response,
+  get: async (patientId: number): Promise<Membership | null> => (await api.get<BackendResponse<Membership | null>>(`/patient/${patientId}/membership`)).data.response,
+  assign: async (patientId: number, data: { plan_code: string; valid_from: string; valid_until: string; notes?: string }): Promise<Membership> => (await api.post<BackendResponse<Membership>>(`/patient/${patientId}/membership`, data)).data.response,
+  remove: async (patientId: number) => (await api.delete<BackendResponse<{ removed: boolean }>>(`/patient/${patientId}/membership`)).data.response,
+};
+
+export const accountingService = {
+  list: async (): Promise<{ payments: AccountingPayment[]; summary: { total: number; count: number } }> => (await api.get<BackendResponse<{ payments: AccountingPayment[]; summary: { total: number; count: number } }>>('/accounting/payments')).data.response,
+  create: async (data: { patient_id?: number; membership_id?: number; amount: number; method: string; paid_at?: string; reference?: string; notes?: string }) => (await api.post<BackendResponse<AccountingPayment>>('/accounting/payments', data)).data.response,
 };
 
 // --- Package Service ---

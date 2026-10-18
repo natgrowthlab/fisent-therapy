@@ -62,7 +62,8 @@ export function PatientAccessCard({ patient }: { patient: Patient }) {
           <QRCodeSVG value={credential.qr_payload} size={160} level="M" includeMargin title={`Credencial de ${patient.nombre} ${patient.apellido}`} />
           <div className="text-center sm:text-left">
             <p className="text-sm font-semibold text-gray-900">{patient.nombre} {patient.apellido}</p>
-            <p className="mt-1 text-xs text-gray-500">Estado de membresía: {credential.membership_status ?? 'Por verificar'}</p>
+            <p className="mt-1 text-xs font-semibold" style={{ color: credential.membership?.color ?? '#475569' }}>{credential.membership?.plan_name ?? 'Sin membresía'} · {credential.membership_status ?? 'Por verificar'}</p>
+            {credential.membership?.sessions_per_week && <p className="mt-1 text-xs text-gray-500">{credential.membership.sessions_per_week} sesiones por semana</p>}
             {credential.expires_at && <p className="mt-1 text-xs text-gray-500">Vence: {new Date(credential.expires_at).toLocaleString()}</p>}
           </div>
         </div>

@@ -21,6 +21,7 @@ import Cie10Page from './screens/Cie10Page';
 import ReportsPage from './screens/ReportsPage';
 import CheckInPage from './screens/CheckInPage';
 import TariffsPage from './screens/TariffsPage';
+import MembershipsPage from './screens/MembershipsPage';
 
 export default function App() {
   return (
@@ -168,6 +169,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/memberships" element={<ProtectedRoute><AppLayout><MembershipsPage /></AppLayout></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

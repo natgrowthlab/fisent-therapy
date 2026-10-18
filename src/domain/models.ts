@@ -101,7 +101,18 @@ export interface Patient {
 
   created_at: string;
   updated_at: string;
+  membership?: Membership | null;
 }
+
+export type MembershipStatus = 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
+export type MembershipPlanCode = 'AMATEUR' | 'PREPARACION' | 'PROFESIONAL';
+export interface MembershipPlan { code: MembershipPlanCode; name: string; description: string; price: number; sessions_per_week: number | null; color: string; active?: boolean; }
+export interface Membership {
+  id: number; patient_id: number; plan_code: MembershipPlanCode; plan_name: string; plan_description: string;
+  price: number; sessions_per_week: number | null; color: string; status: MembershipStatus;
+  valid_from: string; valid_until: string; notes?: string | null;
+}
+export interface AccountingPayment { id: number; patient_id?: number | null; membership_id?: number | null; patient_name?: string; amount: number; method: string; paid_at: string; reference?: string | null; notes?: string | null; }
 
 export type Genero = 'M' | 'F' | 'O';
 export type Zona = 'U' | 'R';
@@ -528,6 +539,7 @@ export interface PatientAccessCredential {
   qr_payload: string;
   expires_at?: string;
   membership_status?: 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
+  membership?: Pick<Membership, 'plan_code' | 'plan_name' | 'color' | 'sessions_per_week' | 'valid_from' | 'valid_until'> | null;
 }
 
 export interface PatientAccessValidation {
@@ -535,6 +547,7 @@ export interface PatientAccessValidation {
   patient?: Pick<Patient, 'id' | 'nombre' | 'apellido' | 'num_doc'>;
   membership_status?: 'ACTIVA' | 'INACTIVA' | 'VENCIDA';
   check_in_at?: string;
+  membership?: Pick<Membership, 'plan_code' | 'plan_name' | 'color' | 'sessions_per_week' | 'valid_from' | 'valid_until'> | null;
   message?: string;
 }
 

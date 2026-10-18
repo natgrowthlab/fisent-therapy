@@ -68,6 +68,9 @@ export function ensureDatabaseSchema() {
       issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       last_used_at TIMESTAMPTZ
     )`;
+    await sql`ALTER TABLE patient_access_credentials ADD COLUMN IF NOT EXISTS membership_plan_code TEXT`;
+    await sql`ALTER TABLE patient_access_credentials ADD COLUMN IF NOT EXISTS membership_name TEXT`;
+    await sql`ALTER TABLE patient_access_credentials ADD COLUMN IF NOT EXISTS membership_valid_from TIMESTAMPTZ`;
     await sql`CREATE INDEX IF NOT EXISTS patient_access_credentials_patient_idx ON patient_access_credentials (patient_id, active, expires_at)`;
     await sql`CREATE TABLE IF NOT EXISTS patient_check_ins (
       id BIGSERIAL PRIMARY KEY,
@@ -76,6 +79,52 @@ export function ensureDatabaseSchema() {
       checked_in_by BIGINT REFERENCES users(id),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
+    await sql`CREATE INDEX IF NOT EXISTS patient_check_ins_patient_time_idx ON patient_check_ins (patient_id, created_at DESC)`;
+    await sql`CREATE TABLE IF NOT EXISTS membership_plans (
+      code TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      price INTEGER NOT NULL CHECK (price >= 0),
+      sessions_per_week INTEGER,
+      color TEXT NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      position INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`INSERT INTO membership_plans (code, name, description, price, sessions_per_week, color, position) VALUES
+      ('AMATEUR', 'Amateur', 'Plan básico · 3 sesiones por semana', 150000, 3, '#0D9488', 1),
+      ('PREPARACION', 'Preparación', 'Plan inicial · 4 sesiones por semana', 250000, 4, '#0891B2', 2),
+      ('PROFESIONAL', 'Profesional', 'Plan premium · entrenamiento full personalizado', 500000, NULL, '#7C3AED', 3)
+      ON CONFLICT (code) DO NOTHING`;
+    await sql`CREATE TABLE IF NOT EXISTS patient_memberships (
+      id BIGSERIAL PRIMARY KEY,
+      patient_id BIGINT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      plan_code TEXT NOT NULL REFERENCES membership_plans(code),
+      status TEXT NOT NULL DEFAULT 'ACTIVA' CHECK (status IN ('ACTIVA', 'INACTIVA', 'VENCIDA')),
+      valid_from TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      valid_until TIMESTAMPTZ NOT NULL,
+      notes TEXT,
+      removed_at TIMESTAMPTZ,
+      created_by BIGINT REFERENCES users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS patient_memberships_one_current_idx ON patient_memberships (patient_id) WHERE status = 'ACTIVA' AND removed_at IS NULL`;
+    await sql`CREATE INDEX IF NOT EXISTS patient_memberships_current_idx ON patient_memberships (patient_id, status, valid_until DESC)`;
+    await sql`CREATE TABLE IF NOT EXISTS accounting_payments (
+      id BIGSERIAL PRIMARY KEY,
+      patient_id BIGINT REFERENCES patients(id) ON DELETE SET NULL,
+      membership_id BIGINT REFERENCES patient_memberships(id) ON DELETE SET NULL,
+      amount INTEGER NOT NULL CHECK (amount > 0),
+      method TEXT NOT NULL CHECK (method IN ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'NEQUI', 'DAVIPLATA', 'OTRO')),
+      paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      reference TEXT,
+      notes TEXT,
+      created_by BIGINT REFERENCES users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS accounting_payments_paid_at_idx ON accounting_payments (paid_at DESC)`;
     await sql`CREATE TABLE IF NOT EXISTS tariffs (
       id TEXT PRIMARY KEY,
       category TEXT NOT NULL,

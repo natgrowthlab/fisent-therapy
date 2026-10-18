@@ -13,7 +13,7 @@ export function mapPatient(row: Record<string, unknown>) {
 const textValue = (value: unknown): string | null => typeof value === 'string' && value.trim() ? value.trim() : null;
 
 export function patientValues(input: Record<string, unknown>): PatientInput {
-  const fields = ['tipo_doc', 'num_doc', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono', 'telefono_secundario', 'email', 'direccion', 'genero', 'zona'];
+  const fields = ['tipo_doc', 'num_doc', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono', 'telefono_secundario', 'email', 'direccion', 'genero', 'zona', 'membership'];
   const profile = Object.fromEntries(Object.entries(input).filter(([field]) => !fields.includes(field)));
   return {
     tipo_doc: textValue(input.tipo_doc), num_doc: textValue(input.num_doc), nombre: textValue(input.nombre), apellido: textValue(input.apellido),

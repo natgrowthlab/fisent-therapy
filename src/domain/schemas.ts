@@ -156,6 +156,12 @@ export const patientSchema = z.object({
     .or(z.literal('')),
 
   id_cie: z.number().nullable().optional(),
+  membership: z.object({
+    plan_code: z.enum(['AMATEUR', 'PREPARACION', 'PROFESIONAL']),
+    valid_from: z.string().min(1),
+    valid_until: z.string().min(1),
+    notes: z.string().max(500).optional(),
+  }).optional(),
 });
 
 // --- Paquete asignado al paciente ---

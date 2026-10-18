@@ -15,6 +15,10 @@ export async function createAppleWalletPass(patient: { id: number; nombre: strin
   const signerKeyPassphrase = process.env.APPLE_PASS_SIGNER_KEY_PASSPHRASE;
   if (!passTypeIdentifier || !teamIdentifier || !signerKeyPassphrase) throw new Error('La firma de Apple Wallet no está completamente configurada.');
 
+  const membership = credential.membership;
+  const colorByPlan: Record<string, string> = { AMATEUR: 'rgb(13, 148, 136)', PREPARACION: 'rgb(8, 145, 178)', PROFESIONAL: 'rgb(124, 58, 237)' };
+  const backgroundColor = colorByPlan[membership?.plan_code ?? ''] ?? 'rgb(71, 85, 105)';
+  const planLabel = membership?.plan_name ?? 'Sin membresía';
   const pass = new PKPass({}, {
     wwdr: decodedSecret('APPLE_WWDR_CERTIFICATE_PEM_BASE64'),
     signerCert: decodedSecret('APPLE_PASS_SIGNER_CERTIFICATE_PEM_BASE64'),
@@ -29,15 +33,16 @@ export async function createAppleWalletPass(patient: { id: number; nombre: strin
     description: 'Credencial de membresía FisenT',
     logoText: 'FisenT',
     foregroundColor: 'rgb(255, 255, 255)',
-    backgroundColor: 'rgb(13, 148, 136)',
+    backgroundColor,
     labelColor: 'rgb(236, 253, 245)',
   });
 
   pass.type = 'storeCard';
-  pass.headerFields.push({ key: 'membership', label: 'MEMBRESÍA', value: credential.membership_status });
+  pass.headerFields.push({ key: 'status', label: 'ESTADO', value: credential.membership_status });
   pass.primaryFields.push({ key: 'patient', label: 'PACIENTE', value: `${patient.nombre} ${patient.apellido}` });
-  pass.secondaryFields.push({ key: 'document', label: 'DOCUMENTO', value: `•••• ${patient.num_doc.slice(-4)}` });
-  pass.auxiliaryFields.push({ key: 'expires', label: 'VÁLIDA HASTA', value: new Date(credential.expires_at).toLocaleDateString('es-CO') });
+  pass.secondaryFields.push({ key: 'membership', label: 'MEMBRESÍA', value: planLabel });
+  pass.auxiliaryFields.push({ key: 'expires', label: 'VIGENCIA HASTA', value: new Date(credential.expires_at).toLocaleDateString('es-CO') });
+  pass.auxiliaryFields.push({ key: 'document', label: 'DOCUMENTO', value: `•••• ${patient.num_doc.slice(-4)}` });
   pass.backFields.push({ key: 'privacy', label: 'Privacidad', value: 'El código QR contiene una credencial segura y no información clínica.' });
   pass.setBarcodes({ format: 'PKBarcodeFormatQR', message: credential.qr_payload, messageEncoding: 'utf-8', altText: 'Credencial FisenT' });
 
