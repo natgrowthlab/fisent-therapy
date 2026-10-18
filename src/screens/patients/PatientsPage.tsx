@@ -287,7 +287,7 @@ export default function PatientsPage() {
         await patientService.delete(id);
 
         toast.success(
-          'Paciente desactivado correctamente'
+          'Paciente eliminado correctamente'
         );
 
         loadPatients();
